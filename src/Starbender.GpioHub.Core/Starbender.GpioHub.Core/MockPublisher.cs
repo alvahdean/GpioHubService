@@ -33,7 +33,7 @@ namespace GpioMonitor
         {
             GpioState result = new GpioState(pinId, 0);
             double dt = (DateTime.Now - startTime).TotalMilliseconds;
-            double period = 30000;
+            double period = 5000;
             double phase = (dt % period)/period;
             double signal = (double)GpioState.MaxValue * ( 0.5d + Math.Sin(phase* 2 * Math.PI)/2d);
             double noise = (rnd.NextDouble() - .5) * NoiseLevel;

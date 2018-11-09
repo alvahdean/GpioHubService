@@ -8,27 +8,22 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace WebGpioMonitor
+namespace GpioStateServer
 {
     public class Program
     {
         public static void Main(string[] args)
         {
-            var config = new ConfigurationBuilder()
-                .AddCommandLine(args)
-                .Build();
-
-
-            WebHost.CreateDefaultBuilder(args)
-                .UseSetting(WebHostDefaults.PreventHostingStartupKey, "true")
-                .ConfigureLogging(factory => { factory.AddConsole(); })
-                .UseKestrel()
-                .UseContentRoot(Directory.GetCurrentDirectory())
-                .UseEnvironment("Development")
-                .UseStartup<Startup>()
-                .Build()
-                .Run();
+            CreateWebHostBuilder(args).Build().Run();
         }
 
+        public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+            .ConfigureLogging((logging) =>
+            {
+                logging.AddConsole();
+                logging.AddDebug();
+            })
+            .UseStartup<Startup>();
     }
 }

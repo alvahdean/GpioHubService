@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace WebGpioMonitor.Data.Migrations
+namespace GpioStateServer.Data.Migrations
 {
     public partial class CreateIdentitySchema : Migration
     {

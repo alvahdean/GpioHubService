@@ -1,0 +1,127 @@
+﻿@page
+@model GpioStateServer.Pages.GpioMonitorModel
+@{
+    ViewData["Title"] = "GPIO State";
+}
+
+<h1>Gpio Monitor</h1>
+
+<canvas id="gpioStateChart" width="200" height="200"></canvas>
+<p />
+@*<canvas id="gpioStateChart" style="width: 400px; height: 400px"></canvas>*@
+<input type="button" id="clearButton" value="Clear Data" onclick="onClearButton()" />
+<script src="~/lib/signalr/dist/browser/signalr.js"></script>
+<script src="~/lib/moment/moment.js"></script>
+<script src="~/lib/Chart/Chart.js"></script>
+<script src="~/lib/chartjs-plugins/chartjs-plugin-streaming.js"></script>
+<script>
+    var valIdx = 0;
+    var analogValues = [];
+    var digitalValues = [];
+    var dataLabels = [];
+    var nSamples = 100;
+    analogValues.length = nSamples;
+    digitalValues.length = nSamples;
+    dataLabels.length = nSamples;
+    analogValues.fill(0);
+    digitalValues.fill(0);
+    dataLabels.fill(0);
+    var analogSet = {
+        data: analogValues,
+        label: "Analog",
+        borderColor: "#ff0000",
+        fill: false,
+        lineTension: 0
+    };
+    var digitalSet = {
+        data: digitalValues,
+        label: "Digital",
+        borderColor: "#00ff00",
+        fill: false,
+        lineTension: 0
+    };
+
+    var graphConfig = {
+        type: 'line',
+        showLines: true,
+        data: {
+            labels: dataLabels,
+            datasets: [analogSet, digitalSet]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        maxTicksLimit: 10,
+                        min: 0,
+                        max: 1
+                    },
+                }],
+                xAxes: [{
+                    ticks: {
+                        maxTicksLimit: 10
+                    }
+                }]
+            }
+        }
+    }
+
+    // Reduce the animation steps for demo clarity.
+    //var chart = new Chart(ctx).Line(graphData, {animationSteps: 15 });
+    var chart = new Chart.Line(document.getElementById('gpioStateChart'), graphConfig);
+
+    //var connection = new signalR.HubConnection("/gpioState");
+
+    //connection.on('RecieveGpioState',
+    //    function (sender, timestamp, pinId, isAnalog, value) {
+    //        update(timestamp, value);
+    //    });
+
+    //connection.start();
+
+    var connection = new signalR.HubConnectionBuilder().withUrl("/gpioState").build();
+
+    connection.on("GpioState", function (tstamp, pinId, isAnalog, value) {
+        console.debug("Pages.GpioMonitor: Got new value (" + tstamp + ", " + value + ")");
+        update(tstamp, value);
+    });
+
+    connection.start().catch(function (err) {
+        return console.error(err.toString());
+    });
+
+    function onClearButton() {
+        console.debug("Clearing data");
+        clearData(chart);
+    }
+
+    function update(tstamp, value) {
+        var digValue = 0;
+        if (value >= 32000)
+            digValue = 1;
+        dataLabels.push(++valIdx);
+        analogValues.push(value / 64000);
+        digitalValues.push(digValue);
+
+        dataLabels.shift();
+        analogValues.shift();
+        digitalValues.shift();
+        chart.update();
+    }
+
+    function clearData() {
+        console.debug("Clearing All Data...");
+        datalabels.fill(0);
+        analogValues.fill(0);
+        digitalValues.fill(0);
+        ch.update();
+    }
+
+    function debugStats() {
+        var nsets = chart.data.datasets.length;
+        var npts = chart.data.labels.length;
+        console.debug("Datasets: " + nsets);
+        console.debug("Points: " + npts);
+        console.debug("Next label: " + nextLabel);
+    }
+</script>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,12 +9,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using WebGpioMonitor.Data;
+using GpioStateServer.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using GpioMonitor.Hubs;
+using GpioStateServer.Hubs;
+using Microsoft.Extensions.Logging;
 
-namespace WebGpioMonitor
+namespace GpioStateServer
 {
     public class Startup
     {
@@ -31,7 +32,7 @@ namespace WebGpioMonitor
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-                options.CheckConsentNeeded = context => true;
+                options.CheckConsentNeeded = context => false;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
@@ -41,19 +42,9 @@ namespace WebGpioMonitor
             services.AddDefaultIdentity<IdentityUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            services.AddSignalR();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddSignalR();
-
-            services.AddCors(o =>
-            {
-                o.AddPolicy("Everything", p =>
-                {
-                    p.AllowAnyHeader()
-                        .AllowAnyMethod()
-                        .AllowAnyOrigin();
-                });
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -66,31 +57,22 @@ namespace WebGpioMonitor
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/Error");
                 app.UseHsts();
             }
-
-            app.UseCors("Everything");
             app.UseHttpsRedirection();
-            //app.UseFileServer();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
             app.UseAuthentication();
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
-            });
-
+            app.UseMvc();
 
             app.UseSignalR(routes =>
             {
-                routes.MapHub<SensorHub>("/sensor");
+                routes.MapHub<ChatHub>("/chatHub");
+                routes.MapHub<GpioStateHub>("/gpioState");
             });
-
         }
     }
 }
