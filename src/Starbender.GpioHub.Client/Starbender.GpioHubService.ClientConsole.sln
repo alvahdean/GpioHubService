@@ -1,0 +1,51 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2048
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GpioMonitor", "GpioMonitor\GpioMonitor.csproj", "{916530F3-E6D3-447F-B2C6-726605898F0A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GpioMonitorLib", "GpioMonitorLib\GpioMonitorLib.csproj", "{23D55595-B8DB-4314-AC79-A8829B377082}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GpioStateServer", "SignalRTest104\GpioStateServer.csproj", "{93E66811-6D77-49FD-9F53-8E0AA0F9C6F5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Gpio", "Gpio", "{11A43769-13FD-4A2D-8D19-16B5242979C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GpioClientConsole", "GpioClientConsole\GpioClientConsole.csproj", "{9CF91C0B-2101-43CF-B347-7ADA8BD2E112}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{916530F3-E6D3-447F-B2C6-726605898F0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{916530F3-E6D3-447F-B2C6-726605898F0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{916530F3-E6D3-447F-B2C6-726605898F0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{916530F3-E6D3-447F-B2C6-726605898F0A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23D55595-B8DB-4314-AC79-A8829B377082}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23D55595-B8DB-4314-AC79-A8829B377082}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23D55595-B8DB-4314-AC79-A8829B377082}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23D55595-B8DB-4314-AC79-A8829B377082}.Release|Any CPU.Build.0 = Release|Any CPU
+		{93E66811-6D77-49FD-9F53-8E0AA0F9C6F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{93E66811-6D77-49FD-9F53-8E0AA0F9C6F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{93E66811-6D77-49FD-9F53-8E0AA0F9C6F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{93E66811-6D77-49FD-9F53-8E0AA0F9C6F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9CF91C0B-2101-43CF-B347-7ADA8BD2E112}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9CF91C0B-2101-43CF-B347-7ADA8BD2E112}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9CF91C0B-2101-43CF-B347-7ADA8BD2E112}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9CF91C0B-2101-43CF-B347-7ADA8BD2E112}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{916530F3-E6D3-447F-B2C6-726605898F0A} = {11A43769-13FD-4A2D-8D19-16B5242979C4}
+		{23D55595-B8DB-4314-AC79-A8829B377082} = {11A43769-13FD-4A2D-8D19-16B5242979C4}
+		{93E66811-6D77-49FD-9F53-8E0AA0F9C6F5} = {11A43769-13FD-4A2D-8D19-16B5242979C4}
+		{9CF91C0B-2101-43CF-B347-7ADA8BD2E112} = {11A43769-13FD-4A2D-8D19-16B5242979C4}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7F7A7459-40F8-41C6-B2F2-373D0064C3FA}
+	EndGlobalSection
+EndGlobal

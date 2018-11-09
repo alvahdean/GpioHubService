@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <RootNamespace>Starbender.GpioHub.Core</RootNamespace>
+    <Authors>Dean Fuqua</Authors>
+    <Company>Startbender Systems</Company>
+    <Product>Starbender.GpioHub</Product>
+    <Copyright>Copyright 2018 Starbender Systems</Copyright>
+    <RepositoryUrl>https://github.com/alvahdean/Starbender.GpioHub.Core</RepositoryUrl>
+    <Description>Common library for Gpio clients and services</Description>
+    <PackageLicenseUrl>https://github.com/alvahdean/Starbender.GpioHub.Core/LICENSE.txt</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/alvahdean/Starbender.GpioHub/projects/1</PackageProjectUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>SignalR GPIO RaspberryPi</PackageTags>
+    <PackageReleaseNotes>Initial release</PackageReleaseNotes>
+    <PackageIconUrl>https://github.com/alvahdean/Starbender.Home/blob/master/content/icons/Starbender.Nuget.png</PackageIconUrl>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="1.0.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Include="Unosquare.Raspberry.IO" Version="0.17.2" />
+    <PackageReference Include="Unosquare.RaspberryIO.Peripherals" Version="0.2.3" />
+  </ItemGroup>
+</Project>
