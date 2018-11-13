@@ -12,6 +12,10 @@ namespace GpioMonitor
 
     public static class GpioSubscriberFactory
     {
+        public static IGpioStateSubscriber Create() => Create<GpioStateSubscriber>();
+
+        public static IGpioStateSubscriber Create(string hubUrl, ILogger log) => Create<GpioStateSubscriber>(hubUrl,log);
+
         public static IGpioStateSubscriber Create<TSub>()
             where TSub : GpioStateSubscriber, new() => new TSub();
 
@@ -21,6 +25,5 @@ namespace GpioMonitor
                 HubUrl = hubUrl,
                 Logger = log
             };
-
     }
 }

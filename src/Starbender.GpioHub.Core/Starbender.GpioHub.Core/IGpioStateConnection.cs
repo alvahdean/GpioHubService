@@ -24,6 +24,7 @@ namespace GpioMonitor
         void Disconnect();
         Task DisconnectAsync();
         IEnumerable<GpioState> GetHistory(int pinId);
+        GpioState GetLast(int pinId);
         bool IsValidPin(int pinId);
         bool ValidateState(GpioState state);
     }

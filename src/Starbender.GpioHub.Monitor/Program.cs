@@ -50,7 +50,7 @@ namespace GpioMonitor
             Console.WriteLine($"Connecting to SignalR hub @ {hubUrl}");
 
             IGpioStatePublisher monitor = GpioPublisherFactory.Create<MockPublisher>(hubUrl, logger);
-            monitor.UpdateMilliseconds = 500;
+            monitor.UpdateMilliseconds = 3000;
             foreach (int pin in pinList)
                 monitor.MonitorPin(pin);
             await monitor.ConnectAsync();
