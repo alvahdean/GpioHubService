@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GpioMonitor;
 using GpioMonitor.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -14,63 +15,83 @@ namespace Starbender.GpioService.Controllers
     [ApiController]
     public class GpioController : ControllerBase
     {
-        private static Dictionary<int, GpioState> _states = new Dictionary<int, GpioState>();
+        private static object _syncRoot = new object();
+        private IGpioStateSubscriber _subscription;
+        private readonly IHostingEnvironment _hostingEnvironment;
+        private ILogger _logger;
 
-        private static IGpioStateSubscriber _subscription=GpioSubscriberFactory.Create((string)"/gpioState",(ILogger)null);
-
-        public GpioController(IGpioStateSubscriber subscription)
+        public GpioController(
+            IHostingEnvironment hostingEnvironment
+            ,IGpioStateSubscriber subscription
+            ,ILogger logger)
         {
             _subscription = subscription;
-            subscription.
+            _hostingEnvironment = hostingEnvironment;
+            _logger = logger;
+
+            if(!_subscription.IsConnected)
+            {
+                lock (_syncRoot)
+                {
+                    if (_subscription.HubUri == null)
+                    {
+                        Uri uri = new Uri("http://localhost:5000");
+                        string hubUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}/gpioState";
+                        _logger.LogInformation($"Setting Url to [{hubUrl}]");
+                        _subscription.HubUri = new Uri(hubUrl);
+                    }
+                    if (!_subscription.IsConnected)
+                    {
+                        _logger.LogInformation($"Connecting to [{_subscription.HubUrl}]");
+                        _subscription.Connect();
+                    }
+                }
+            }
         }
 
         // GET: api/Gpio
         [HttpGet]
         public JsonResult Get()
         {
-            return new JsonResult(_states.Values);
+            IEnumerable<GpioState> states =
+                _subscription.Subscriptions
+                .Select(t => _subscription.GetLast(t))
+                .Where(t => t != null);
+            return new JsonResult(states);
         }
 
         // GET: api/Gpio/5
         [HttpGet("{id}", Name = "Get")]
         public JsonResult Get(int id)
         {
-            return _states.ContainsKey(id) 
-                ? new JsonResult(_states[id])
+            return _subscription.IsSubscribed(id) 
+                ? new JsonResult(_subscription.GetLast(id))
                 : new JsonResult(null) { StatusCode = 404 };
         }
 
-        // POST: api/Gpio (Set pin value)
-        [HttpPost]
-        public JsonResult Post([FromBody] int id, [FromBody] int value)
+        // POST: api/Gpio/5 (Add new subscription)
+        [HttpPost("{id}")]
+        public JsonResult Post(int id)
         {
-            if (_states.ContainsKey(id))
+            bool result = true;
+            if (!_subscription.IsSubscribed(id))
             {
-                _states[id].Value = value;
-                return new JsonResult(_states[id]);
+                result=_subscription.SubscribePin(id);
             }
-            else
-                return new JsonResult(null) { StatusCode = 500 };
+            return new JsonResult(result);
         }
 
-        // PUT: api/Gpio/5 (Add or modify)
-        [HttpPut("{id}")]
-        public JsonResult Put(int id, [FromBody] bool isAnalog=false)
-        {
-            if (_states.ContainsKey(id))
-                _states[id].IsAnalog = isAnalog;
-            else
-                _states.Add(id, new GpioState(id, 0, null, isAnalog));
-            return new JsonResult(true);
-        }
-
-        // DELETE: api/ApiWithActions/5
+        // DELETE: api/Gpio/5 (Unsubscribe from pin)
         [HttpDelete("{id}")]
         public JsonResult Delete(int id)
         {
-            if(_states.ContainsKey(id))
-                _states.Remove(id);
-            return new JsonResult(true);
+            bool result = true;
+            if (_subscription.IsSubscribed(id))
+            {
+                _subscription.UnsubscribePin(id);
+                result = !_subscription.IsSubscribed(id);
+            }
+            return new JsonResult(result);
         }
     }
 }

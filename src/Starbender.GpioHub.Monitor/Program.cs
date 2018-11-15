@@ -34,26 +34,36 @@ namespace GpioMonitor
             if (!String.IsNullOrWhiteSpace(config["pinList"]))
                 pinList = JsonConvert.DeserializeObject<List<int>>(config["pinList"]);
 
+            if(pinList.Count==0)
+            {
+                for (int pin = 18; pin < 19; pin++)
+                    pinList.Add(pin);
+            }
             logger.LogInformation($"Configuration:");
             logger.LogInformation($"   hubUrl={hubUrl}");
             logger.LogInformation($"   pinList={String.Join(',', pinList)}");
 
-            Task.Run(() => StartMonitor(cancellationTokenSource.Token).GetAwaiter().GetResult(), cancellationTokenSource.Token);
+            IGpioStatePublisher monitor = null;
 
+            if (config["useMockPublisher"].ToLowerInvariant()=="true")
+                monitor= GpioPublisherFactory.Create<MockPublisher>(null, logger);
+            else
+                monitor = GpioPublisherFactory.Create<UnoSquarePublisher>(null, logger);
+
+            StartMonitor(monitor, cancellationTokenSource.Token).GetAwaiter().GetResult();
             Console.WriteLine("Press Enter to Exit ...");
             Console.ReadLine();
             cancellationTokenSource.Cancel();
         }
 
-        private static async Task StartMonitor(CancellationToken cancellationToken)
+        private static async Task StartMonitor(IGpioStatePublisher monitor,CancellationToken cancellationToken)
         {
             Console.WriteLine($"Connecting to SignalR hub @ {hubUrl}");
 
-            IGpioStatePublisher monitor = GpioPublisherFactory.Create<MockPublisher>(hubUrl, logger);
             monitor.UpdateMilliseconds = 3000;
             foreach (int pin in pinList)
                 monitor.MonitorPin(pin);
-            await monitor.ConnectAsync();
+            await monitor.ConnectAsync(hubUrl);
             await monitor.StartMonitorAsync();
             await monitor.Connection.DisposeAsync();
         }

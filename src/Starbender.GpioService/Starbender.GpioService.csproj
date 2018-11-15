@@ -1,10 +1,21 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <UserSecretsId>aspnet-Starbender.GpioService-C74287BA-6AB3-439E-92D0-16F9EBEECC7E</UserSecretsId>
+    <SshDeployHost>astro-pi-deb</SshDeployHost>
+    <SshDeployClean />
+    <SshDeployTargetPath>/home/starbender/devel/Starbender.GpioService</SshDeployTargetPath>
+    <SshDeployUsername>starbender</SshDeployUsername>
+    <SshDeployPassword>Tjk4rm11</SshDeployPassword>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
   </PropertyGroup>
 
+  <Target Condition="$(BuildingInsideSshDeploy) ==''" Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="cd $(ProjectDir)" />
+    <Exec Command="dotnet-sshdeploy push" />
+  </Target>
+  
   <ItemGroup>
     <None Remove="auth.db" />
   </ItemGroup>
