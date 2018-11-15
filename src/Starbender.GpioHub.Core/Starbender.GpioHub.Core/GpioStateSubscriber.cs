@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using GpioMonitor.Models;
 using Microsoft.Extensions.Logging;
+using Unosquare.RaspberryIO.Gpio;
 
 namespace GpioMonitor
 {
@@ -13,7 +14,7 @@ namespace GpioMonitor
     public class GpioStateSubscriber : GpioStateConnection, IGpioStateSubscriber
     {
         private object _syncRoot = new object();
-        private List<int> _subscriptions = new List<int>();
+        private List<WiringPiPin> _subscriptions = new List<WiringPiPin>();
         
         public GpioStateSubscriber()
             : this(null,null) { }
@@ -26,9 +27,10 @@ namespace GpioMonitor
             await base.ConnectAsync(uri);
             if (IsConnected)
             {
-                _conn.On<DateTime, int, bool, int>("GpioState", (timestamp, pinId, isAnalog, value) =>
+                _conn.On<DateTime, WiringPiPin, GpioPinValue>("GpioState", (timestamp, pin, value) =>
                 {
-                    onGpioStateChanged(new GpioState(pinId, value, timestamp, isAnalog));
+                    new GpioState(pin, value, timestamp);
+                    onGpioStateChanged(new GpioState((WiringPiPin)pin, value, timestamp));
                 });
 
                 _conn.On<GpioState>("GpioState", (state) =>
@@ -40,33 +42,33 @@ namespace GpioMonitor
 
         protected virtual void onGpioStateChanged(GpioState state)
         {
-            if (IsSubscribed(state.PinId))
+            if (IsSubscribed(state.Pin))
             {
                 saveState(state);
                 Logger?.LogInformation($"[GpioStateChanged]: {state}");
             }
         }
 
-        public bool IsSubscribed(int pinId) 
+        public bool IsSubscribed(WiringPiPin pinId) 
             => _subscriptions.Contains(pinId);
 
-        public IEnumerable<int> Subscriptions 
+        public IEnumerable<WiringPiPin> Subscriptions 
             => _subscriptions;
 
-        public bool SubscribePin(int pinId)
+        public bool SubscribePin(WiringPiPin pin)
         {
-            if(!IsSubscribed(pinId) && IsValidPin(pinId))
+            if(!IsSubscribed(pin) && IsValidPin(pin))
             {
-                _subscriptions.Add(pinId);
+                _subscriptions.Add(pin);
             }
-            return IsSubscribed(pinId);
+            return IsSubscribed(pin);
         }
 
-        public void UnsubscribePin(int pinId)
+        public void UnsubscribePin(WiringPiPin pin)
         {
-            if(IsSubscribed(pinId))
+            if(IsSubscribed(pin))
             {
-                _subscriptions.Remove(pinId);
+                _subscriptions.Remove(pin);
             }
         }
 

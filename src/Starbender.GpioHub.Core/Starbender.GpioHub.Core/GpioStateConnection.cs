@@ -6,16 +6,18 @@ using System.Linq;
 using System.Threading.Tasks;
 using GpioMonitor.Models;
 using Microsoft.Extensions.Logging;
+using Unosquare.RaspberryIO.Gpio;
+using Unosquare.RaspberryIO;
 
 namespace GpioMonitor
 {
     public class GpioStateConnection : IGpioStateConnection
     {
-        public const int InvalidPin = -1;
+        public const WiringPiPin InvalidPin = WiringPiPin.Unknown;
 
         private object _syncRoot = new object();
         private Uri _hubUri = null;
-        private Dictionary<int, List<GpioState>> _history = new Dictionary<int, List<GpioState>>();
+        private Dictionary<WiringPiPin, List<GpioState>> _history = new Dictionary<WiringPiPin, List<GpioState>>();
         protected HubConnection _conn = null;
         
         public GpioStateConnection()
@@ -48,23 +50,23 @@ namespace GpioMonitor
                 Logger?.LogWarning("Invalid GpioState, skipping save");
                 return;
             }
-            if (!_history.ContainsKey(state.PinId))
-                _history.Add(state.PinId, new List<GpioState>());
+            if (!_history.ContainsKey(state.Pin))
+                _history.Add(state.Pin, new List<GpioState>());
             if (!SaveHistory)
-                _history[state.PinId].Clear();
-            _history[state.PinId].Add(state);
+                _history[state.Pin].Clear();
+            _history[state.Pin].Add(state);
         }
 
-        protected virtual void removeHistory(int pinId)
+        protected virtual void removeHistory(WiringPiPin pin)
         {
-            if (!_history.ContainsKey(pinId))
-                _history.Remove(pinId);
+            if (!_history.ContainsKey(pin))
+                _history.Remove(pin);
         }
 
         internal ILogger Logger { get; set; }
 
         public bool ValidateState(GpioState state) 
-            => IsValidPin(state?.PinId??InvalidPin);
+            => IsValidPin(state?.Pin??InvalidPin);
 
         public string HubUrl
         {
@@ -102,26 +104,28 @@ namespace GpioMonitor
 
         public HubConnection Connection => _conn;
 
-        public virtual bool IsValidPin(int pinId) 
-            => pinId > 0;
+        public virtual bool IsValidPin(WiringPiPin pin) 
+            => pin != InvalidPin;
 
-        public IEnumerable<GpioState> GetHistory(int pinId)
+        public IEnumerable<GpioState> GetHistory(WiringPiPin pin)
         {
-            return _history.ContainsKey(pinId) 
-                ? _history[pinId] 
+            return _history.ContainsKey(pin) 
+                ? _history[pin] 
                 : (IEnumerable<GpioState>)new GpioState[] { };
         }
 
-        public GpioState GetLast(int pinId)
+        public GpioState GetLast(WiringPiPin pin)
         {
-            return _history.ContainsKey(pinId)
-                ? _history[pinId].OrderByDescending(t=>t.Timestamp).FirstOrDefault()
+            return _history.ContainsKey(pin)
+                ? _history[pin].OrderByDescending(t=>t.Timestamp).FirstOrDefault()
                 : null;
         }
 
-        public void Connect() => Connect((Uri)null);
+        public void Connect()
+            => Connect((Uri)null);
 
-        public void Connect(string url) => Connect(String.IsNullOrWhiteSpace(url)? null: new Uri(url));
+        public void Connect(string url)
+            => Connect(String.IsNullOrWhiteSpace(url)? null: new Uri(url));
 
         public void Connect(Uri uri)
         {
@@ -191,5 +195,6 @@ namespace GpioMonitor
         {
             Task.Run(async () => { await DisconnectAsync(); }).Wait();
         }
+
     }
 }

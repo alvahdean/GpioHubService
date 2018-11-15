@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using GpioMonitor.Models;
 using Microsoft.Extensions.Logging;
 using System.Threading;
+using Unosquare.RaspberryIO.Gpio;
 
 namespace GpioMonitor
 {
@@ -15,7 +16,7 @@ namespace GpioMonitor
 
         protected CancellationTokenSource cancelTokenSource { get; private set; } = new CancellationTokenSource();
         protected CancellationToken cancelToken => cancelTokenSource.Token;
-        private List<int> _monitorList = new List<int>();
+        private List<WiringPiPin> _monitorList = new List<WiringPiPin>();
 
         public GpioStatePublisher()
             : this(null,null) { }
@@ -23,26 +24,26 @@ namespace GpioMonitor
         public GpioStatePublisher(string hubUrl,ILogger log=null) 
             : base(hubUrl,log) { }
         
-        abstract protected Task<GpioState> readPinAsync(int pinId);
+        abstract protected Task<GpioState> readPinAsync(WiringPiPin pinId);
 
-        public bool IsMonitored(int pinId) 
-            => _monitorList.Contains(pinId);
+        public bool IsMonitored(WiringPiPin pin) 
+            => _monitorList.Contains(pin);
 
-        public IEnumerable<int> MonitorList 
+        public IEnumerable<WiringPiPin> MonitorList 
             => _monitorList;
 
-        public bool MonitorPin(int pinId)
+        public bool MonitorPin(WiringPiPin pin)
         {
-            if(!IsMonitored(pinId) && IsValidPin(pinId))
-                _monitorList.Add(pinId);
-            return IsMonitored(pinId);
+            if(!IsMonitored(pin) && IsValidPin(pin))
+                _monitorList.Add(pin);
+            return IsMonitored(pin);
         }
 
-        public void IgnorePin(int pinId)
+        public void IgnorePin(WiringPiPin pin)
         {
-            if(IsMonitored(pinId))
+            if(IsMonitored(pin))
             {
-                _monitorList.Remove(pinId);
+                _monitorList.Remove(pin);
             }
         }
 
@@ -58,13 +59,13 @@ namespace GpioMonitor
             
             while (!cancelToken.IsCancellationRequested)
             {
-                foreach (int pinId in _monitorList)
+                foreach (WiringPiPin pin in _monitorList)
                 {
-                    GpioState st = await readPinAsync(pinId);
+                    GpioState st = await readPinAsync(pin);
                     saveState(st);
                     Logger?.LogDebug($"[SEND] GpioState:{st}");
                     // Finally send the value:
-                    await _conn.SendAsync("Broadcast", st.Timestamp, st.PinId, st.IsAnalog, st.Value);
+                    await _conn.SendAsync("Broadcast", st.Timestamp, st.Pin, st.Value);
                 }
                 await Task.Delay(UpdateMilliseconds, cancelToken);
 

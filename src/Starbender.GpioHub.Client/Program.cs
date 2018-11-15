@@ -4,6 +4,7 @@ using System.Windows;
 using GpioMonitor;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.Logging;
+using Unosquare.RaspberryIO.Gpio;
 
 namespace GpioClientConsole
 {
@@ -14,7 +15,7 @@ namespace GpioClientConsole
         public static void Main(string[] args)
         {
             IGpioStateSubscriber client = new GpioStateSubscriber(hubUrl, logger);
-            client.SubscribePin(18);
+            client.SubscribePin(WiringPiPin.Pin05);
             client.SubscribePin(21);
             //client.SubscribePin(18);
             //client.SubscribePin(18);

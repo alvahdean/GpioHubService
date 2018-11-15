@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using GpioMonitor.Models;
 using Microsoft.AspNetCore.SignalR.Client;
+using Unosquare.RaspberryIO.Gpio;
 
 namespace GpioMonitor
 {
@@ -23,9 +24,9 @@ namespace GpioMonitor
         Task ConnectAsync(Uri uri);
         void Disconnect();
         Task DisconnectAsync();
-        IEnumerable<GpioState> GetHistory(int pinId);
-        GpioState GetLast(int pinId);
-        bool IsValidPin(int pinId);
+        IEnumerable<GpioState> GetHistory(WiringPiPin pinId);
+        GpioState GetLast(WiringPiPin pinId);
+        bool IsValidPin(WiringPiPin pinId);
         bool ValidateState(GpioState state);
     }
 }
