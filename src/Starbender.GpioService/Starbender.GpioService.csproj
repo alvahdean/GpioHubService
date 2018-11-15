@@ -1,0 +1,41 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <UserSecretsId>aspnet-Starbender.GpioService-C74287BA-6AB3-439E-92D0-16F9EBEECC7E</UserSecretsId>
+    <SshDeployHost>astro-pi-deb</SshDeployHost>
+    <SshDeployClean />
+    <SshDeployTargetPath>/home/starbender/devel/Starbender.GpioService</SshDeployTargetPath>
+    <SshDeployUsername>starbender</SshDeployUsername>
+    <SshDeployPassword>Tjk4rm11</SshDeployPassword>
+    <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+  </PropertyGroup>
+
+  <Target Condition="$(BuildingInsideSshDeploy) ==''" Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="cd $(ProjectDir)" />
+    <Exec Command="dotnet-sshdeploy push" />
+  </Target>
+  
+  <ItemGroup>
+    <None Remove="auth.db" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="auth.db">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="2.1.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.1.5" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Startbender.GpioHub.WebUI\Startbender.GpioHub.WebUI.csproj" />
+  </ItemGroup>
+
+</Project>

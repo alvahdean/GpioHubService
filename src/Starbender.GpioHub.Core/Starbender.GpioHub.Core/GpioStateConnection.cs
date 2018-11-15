@@ -112,6 +112,13 @@ namespace GpioMonitor
                 : (IEnumerable<GpioState>)new GpioState[] { };
         }
 
+        public GpioState GetLast(int pinId)
+        {
+            return _history.ContainsKey(pinId)
+                ? _history[pinId].OrderByDescending(t=>t.Timestamp).FirstOrDefault()
+                : null;
+        }
+
         public void Connect() => Connect((Uri)null);
 
         public void Connect(string url) => Connect(String.IsNullOrWhiteSpace(url)? null: new Uri(url));

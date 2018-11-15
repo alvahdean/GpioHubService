@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <RootNamespace>Starbender.GpioHub.Core</RootNamespace>
     <Authors>Dean Fuqua</Authors>
     <Company>Startbender Systems</Company>
@@ -16,6 +16,9 @@
     <PackageLicenseUrl>https://github.com/alvahdean/Starbender.GpioHub.Core/LICENSE.txt</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/alvahdean/Starbender.GpioHub/projects/1</PackageProjectUrl>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <ApplicationIcon />
+    <OutputType>Library</OutputType>
+    <StartupObject />
   </PropertyGroup>
 
   <ItemGroup>
